@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La botigueta que es porta sola — SolutionPartner.AI</title>
+<link rel="icon" type="image/png" href="logo.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>tailwind.config={theme:{extend:{colors:{spai:'#0b1d32',gold2:'#e7c47d'}}}};</script>
+<style>
+body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;}
+#escena{position:relative;overflow:hidden;background:linear-gradient(180deg,#fef3c7,#ffedd5 40%,#fde68a);border-radius:24px;}
+#escena svg{width:100%;height:auto;display:block;}
+.monedes{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;}
+.moneda{position:absolute;font-size:26px;animation:caure 1.6s ease-in forwards;}
+@keyframes caure{from{transform:translateY(-20px) rotate(0);opacity:1;}to{transform:translateY(240px) rotate(360deg);opacity:0;}}
+#aviso{transition:all .3s;}
+</style>
+</head>
+<body class="bg-slate-50 text-spai">
+
+<nav class="bg-spai text-white py-4">
+  <div class="max-w-5xl mx-auto px-4 flex items-center gap-3">
+    <img src="logo.png" class="h-10" alt="SolutionPartner">
+    <span class="font-semibold tracking-wide">AI STRATEGY <span class="text-gold2">&amp;</span> AUTOMATION · <span class="text-gold2">SolutionPartner</span>.AI</span>
+  </div>
+</nav>
+
+<header class="bg-gradient-to-br from-spai to-slate-800 text-white text-center px-4 py-10">
+  <div class="max-w-3xl mx-auto">
+    <span class="inline-block bg-gold2 text-spai text-xs font-bold px-3 py-1 rounded-full mb-4 tracking-wide">ESTOC &amp; COMANDES · LA BOTIGUETA</span>
+    <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">Prova-ho: <span class="text-gold2">ven quelcom</span> i mira com es porta el magatzem sol</h1>
+    <p class="mt-4 text-slate-300 text-lg">Clica el botó de vendre i veu com l'estoc baixa, els diners pugen, i l'avís de mínims apareix quan toca. Sense Excel, sense papers.</p>
+  </div>
+</header>
+
+<!-- L'ESCENA DEL JOC -->
+<section class="max-w-3xl mx-auto px-4 py-4">
+  <div id="escena" class="shadow-2xl">
+    <!-- botó de vendre flotant dalt -->
+    <button id="vendre" class="absolute top-4 right-4 z-20 bg-spai text-white font-extrabold px-6 py-3 rounded-2xl hover:bg-slate-800 transition shadow-lg text-lg">🛒 Ven-ho!</button>
+
+    <!-- l'escena SVG -->
+    <svg viewBox="0 0 600 340" xmlns="http://www.w3.org/2000/svg">
+      <!-- taulell/caixa -->
+      <rect x="20" y="230" width="560" height="60" rx="10" fill="#d97706"/>
+      <rect x="20" y="230" width="560" height="12" rx="6" fill="#f59e0b"/>
+      <rect x="470" y="200" width="90" height="40" rx="8" fill="#0f172a"/>
+      <text x="515" y="228" text-anchor="middle" fill="#e7c47d" font-size="20" font-weight="bold">CAIXA</text>
+
+      <!-- prestatgeria amb productes -->
+      <g id="prestat">
+        <rect x="120" y="120" width="4" height="120" fill="#92400e"/>
+        <rect x="420" y="120" width="4" height="120" fill="#92400e"/>
+        <rect x="120" y="185" width="304" height="6" rx="3" fill="#78350f"/>
+        <!-- productes (els nets) -->
+        <g id="prods">
+          <rect x="140" y="155" width="30" height="30" rx="4" fill="#ef4444"/>
+          <rect x="180" y="155" width="30" height="30" rx="4" fill="#f97316"/>
+          <rect x="220" y="155" width="30" height="30" rx="4" fill="#22c55e"/>
+          <rect x="260" y="155" width="30" height="30" rx="4" fill="#3b82f6"/>
+          <rect x="300" y="155" width="30" height="30" rx="4" fill="#a855f7"/>
+          <rect x="340" y="155" width="30" height="30" rx="4" fill="#f59e0b"/>
+        </g>
+        <text x="272" y="148" text-anchor="middle" fill="#78350f" font-size="13">Llac de productes (ven-los!)</text>
+      </g>
+
+      <!-- comprador -->
+      <g id="comprador">
+        <!-- cos -->
+        <circle cx="90" cy="200" r="26" fill="#fcd34d"/>
+        <rect x="70" y="200" width="40" height="46" rx="10" fill="#ef4444"/>
+        <rect x="70" y="200" width="40" height="30" rx="10" fill="#dc2626"/>
+        <text x="76" y="185" font-size="20">😊</text>
+      </g>
+      <!-- bafarada -->
+      <g id="bafarada" opacity="0">
+        <rect x="20" y="130" width="190" height="44" rx="12" fill="#fff" stroke="#0b1d32" stroke-width="2"/>
+        <text x="115" y="158" text-anchor="middle" font-size="15" fill="#0b1d32">"Me'l enduc!"</text>
+      </g>
+    </svg>
+
+    <!-- monedes cauen -->
+    <div class="monedes" id="monedes"></div>
+
+    <!-- numeros en viu -->
+    <div class="relative z-10 grid grid-cols-3 gap-3 p-4">
+      <div class="bg-white/90 backdrop-blur rounded-xl border-2 border-spai p-3 text-center">
+        <div class="text-[11px] font-bold uppercase text-slate-500">Estoc</div>
+        <div id="estoc" class="text-3xl font-black text-spai">6</div>
+      </div>
+      <div class="bg-white/90 backdrop-blur rounded-xl border-2 border-amber-400 p-3 text-center">
+        <div class="text-[11px] font-bold uppercase text-slate-500">A la caixa</div>
+        <div id="diners" class="text-3xl font-black text-amber-600">0 €</div>
+      </div>
+      <div class="bg-white/90 backdrop-blur rounded-xl border-2 border-emerald-400 p-3 text-center">
+        <div class="text-[11px] font-bold uppercase text-slate-500">Última venda</div>
+        <div id="venda" class="text-xl font-black text-emerald-600">—</div>
+      </div>
+    </div>
+
+    <!-- avís mínims -->
+    <div id="aviso" class="relative z-10 mx-4 mb-4 hidden">
+      <div class="bg-red-50 border-2 border-red-400 rounded-xl p-3 flex items-center gap-3">
+        <span class="text-3xl">⚠️</span>
+        <div><div class="font-bold text-red-700 text-sm">Mínim assolit! Queden 2 unitats.</div>
+        <div class="text-xs text-red-500">Sense la automatització, o setmana per adonar-te'n. Amb ella, t'avisa ara.</div></div>
+      </div>
+    </div>
+  </div>
+  <p class="text-center text-slate-400 text-xs mt-3 mb-8">Així porta el teu estoc una automatització: cada venda actualitza els números, i t'avisa abans de quedar-te sense.</p>
+</section>
+
+<!-- ROI -->
+<section class="max-w-4xl mx-auto px-4 pb-6">
+  <div class="grid md:grid-cols-3 gap-4">
+    <div class="bg-white rounded-2xl shadow border border-slate-200 p-6 text-center">
+      <div class="text-4xl font-black text-spai">0<span class="text-xl">×</span></div><div class="text-sm text-slate-500 mt-1 font-medium">vendre una talla que no tens</div></div>
+    <div class="bg-white rounded-2xl shadow border border-slate-200 p-6 text-center">
+      <div class="text-4xl font-black text-spai">⏱</div><div class="text-sm text-slate-500 mt-1 font-medium">estoc al dia sense tocar Excel</div></div>
+    <div class="bg-white rounded-2xl shadow border border-slate-200 p-6 text-center">
+      <div class="text-4xl font-black text-spai">⚠️</div><div class="text-sm text-slate-500 mt-1 font-medium">avís abans de quedarte sense</div></div>
+  </div>
+</section>
+
+<!-- CVB -->
+<section class="max-w-5xl mx-auto px-4 py-6 pb-2">
+  <div class="bg-white rounded-3xl shadow-xl border border-slate-200 p-6 md:p-8">
+    <h2 class="text-2xl font-extrabold mb-1">Deixa de buscar estoc a Excel. El magatzem es porta sol.</h2>
+    <p class="text-slate-500 text-sm mb-6">Cada venda i cada comanda actualitzen el registre. Tu només mires el número.</p>
+    <div class="grid md:grid-cols-3 gap-6">
+      <div><h3 class="font-bold mb-2 flex items-center gap-2"><span class="bg-gold2 text-spai text-[10px] font-bold px-2 py-0.5 rounded-full">QUÈ FA</span>Característiques</h3>
+        <ul class="text-slate-600 text-sm space-y-1.5"><li>• Estoc que s'actualitza a cada venda</li><li>• Avis de mínims automàtic</li><li>• Comandes en un mateix registre</li><li>• Dades de què ven més</li></ul></div>
+      <div><h3 class="font-bold mb-2 flex items-center gap-2"><span class="bg-spai text-white text-[10px] font-bold px-2 py-0.5 rounded-full">VS</span>Avantatges</h3>
+        <ul class="text-slate-600 text-sm space-y-1.5"><li>• Sense papers ni Excel</li><li>• Sense "ombres de números"</li><li>• Comandes que no es perden</li><li>• Comprar amb dades, no a ull</li></ul></div>
+      <div><h3 class="font-bold mb-2 flex items-center gap-2"><span class="bg-gold2 text-spai text-[10px] font-bold px-2 py-0.5 rounded-full">★</span>Beneficis</h3>
+        <ul class="text-slate-600 text-sm space-y-1.5"><li>• No vens el que no tens</li><li>• Menys productes morts al magatzem</li><li>• Cap client esperant per error</li><li>• Decides comprar amb la realitat</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="bg-spai text-white text-center py-12 px-4 mt-4">
+  <div class="max-w-2xl mx-auto">
+    <h2 class="text-3xl font-extrabold">Porta't l'estoc a l'automatització</h2>
+    <p class="mt-3 text-slate-300">Muntem el teu registre d'estoc i comandes, connectat a la teva botiga.</p>
+    <a href="#demo" class="inline-block mt-6 bg-gold2 text-spai font-extrabold px-8 py-4 rounded-2xl text-lg hover:opacity-90 transition shadow-lg">Munta-ho al meu negoci →</a>
+  </div>
+</section>
+
+<section class="max-w-xl mx-auto px-4 py-12" id="demo">
+  <div class="bg-white rounded-2xl shadow-lg p-8 border border-slate-200">
+    <span class="inline-block bg-gold2 text-spai text-xs font-bold px-3 py-1 rounded-full mb-2">GRATUÏT · SENSE COMPROMÍS</span>
+    <h2 class="text-2xl font-extrabold">El teu estoc, al dia sense tocar-hi</h2>
+    <p class="text-slate-500 text-sm mt-1 mb-5">Mirem com portes l'estoc i t'ho posem a l'automatització.</p>
+    <form onsubmit="return capturaLead(event)">
+      <div class="grid gap-3">
+        <input name="empresa" placeholder="Nom del negoci" required class="border-2 border-slate-200 rounded-lg px-4 py-2.5 focus:border-gold2 outline-none">
+        <input name="nom" placeholder="Persona de contacte" required class="border-2 border-slate-200 rounded-lg px-4 py-2.5 focus:border-gold2 outline-none">
+        <input name="sector" placeholder="Sector (botiga, taller...)" required class="border-2 border-slate-200 rounded-lg px-4 py-2.5 focus:border-gold2 outline-none">
+        <input name="email" type="email" placeholder="Correu electrònic" required class="border-2 border-slate-200 rounded-lg px-4 py-2.5 focus:border-gold2 outline-none">
+        <button class="bg-spai text-white font-bold py-3 rounded-xl hover:bg-slate-800 transition mt-1">M'obtenir l'estoc automàtic →</button>
+      </div>
+      <p class="text-xs text-slate-400 mt-3 text-center">Dades tractades segons RGPD.</p>
+    </form>
+    <div id="ok" class="hidden mt-4 bg-emerald-50 border border-emerald-300 text-emerald-700 font-semibold rounded-lg p-4 text-center">✓ Rebut! Et preparem el registre d'estoc aviat.</div>
+  </div>
+</section>
+
+<footer class="bg-slate-800 text-slate-400 text-center py-5 text-sm">© 2026 SolutionPartner.AI · AI Strategy &amp; Automation</footer>
+
+<script>
+let estoc=6, diners=0;
+const PREU=[12,9,7,15,8,10];
+const NOMS=["esbandada vermella","tornavis taronja","esponja verda","galleda blava","guant lila","espátula daurada"];
+
+function vendre(){
+  if(estoc<=0){setAviso();return;}
+  // comprador s'apropa i torna
+  animarComprador();
+  // cauen monedes a la caixa
+  llençarMonedes();
+  // treu un producte de l'estoc
+  estoc--;
+  const ult=NOMS[estoc];
+  const p=Math.floor(Math.random()*PREU[Math.min(estoc,5)]);
+  diners+=p;
+  // actualitza números
+  document.getElementById('estoc').textContent=estoc;
+  document.getElementById('diners').textContent=diners+' €';
+  document.getElementById('venda').textContent=ult+' · +'+p+' €';
+  if(estoc<=2){setAviso();} else {amagaAviso();}
+}
+function setAviso(){
+  const a=document.getElementById('aviso');
+  a.classList.remove('hidden');
+  a.querySelector('.text-red-700').textContent='Mínim assolit! Queden '+estoc+' unitats.';
+}
+function amagaAviso(){document.getElementById('aviso').classList.add('hidden');}
+
+function llençarMonedes(){
+  const cont=document.getElementById('monedes');
+  for(let i=0;i<3;i++){
+    setTimeout(()=>{
+      const m=document.createElement('div');
+      m.className='moneda';
+      m.textContent=i%2?'€':'🪙';
+      m.style.left=(430+Math.random()*60)+'px';
+      m.style.top=(110+Math.random()*30)+'px';
+      cont.appendChild(m);
+      setTimeout(()=>m.remove(),1700);
+    },i*200+Math.random()*200);
+  }
+}
+function animarComprador(){
+  const c=document.getElementById('comprador');
+  const bf=document.getElementById('bafarada');
+  bf.setAttribute('opacity','1');
+  // mou cap a la prestatgeria i torna
+  let pos=90;
+  const iv=setInterval(()=>{
+    pos+=8;
+    c.setAttribute('transform','translate('+(pos-90)+',0)');
+    if(pos>=260){
+      clearInterval(iv);
+      bf.setAttribute('opacity','0');
+      setTimeout(()=>{
+        const back=setInterval(()=>{
+          pos-=8;
+          c.setAttribute('transform','translate('+(pos-90)+',0)');
+          if(pos<=90)clearInterval(back);
+        },16);
+      },500);
+    }
+  },16);
+}
+
+document.getElementById('vendre').onclick=vendre;
+// deixa clicar també qualsevol producte
+document.getElementById('prods').addEventListener('click',vendre);
+
+async function capturaLead(e){e.preventDefault();
+  const f=e.target, d=Object.fromEntries(new FormData(f).entries());
+  d.origen="landing estoc comandes"; d.kind="lead";
+  let ok=false;
+  try{const r=await fetch('/lead',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(d)});ok=r.ok;}catch(err){ok=false;}
+  document.getElementById('ok').classList.remove('hidden');
+  f.style.display='none';return false;
+}
+</script>
+</body>
+</html>
