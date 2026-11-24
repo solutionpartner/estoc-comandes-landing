@@ -111,6 +111,23 @@ body{font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,sans-seri
   <p class="text-center text-slate-400 text-xs mt-3 mb-8">Així porta el teu estoc una automatització: cada venda actualitza els números, i t'avisa abans de quedar-te sense.</p>
 </section>
 
+<!-- WHATSAPP IA: avisos de la botigueta -->
+<section class="max-w-3xl mx-auto px-4 py-2">
+  <div class="flex items-center gap-2 mb-3">
+    <div class="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center text-xl">🤖</div>
+    <div>
+      <div class="font-bold text-sm text-spai">Gestió d'estoc <span class="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-2 py-0.5 rounded-full ml-1">IA</span></div>
+      <div class="text-[11px] text-slate-400">et va avisant de tot per WhatsApp</div>
+    </div>
+  </div>
+  <div class="bg-[#e5ddd5] rounded-3xl border border-slate-200 p-4 shadow-inner">
+    <div id="wastack" class="flex flex-col gap-2 max-h-72 overflow-y-auto">
+      <div class="self-start bg-white rounded-2xl rounded-tl-sm px-3 py-2 text-sm text-slate-700 shadow-sm max-w-[85%]">👋 Hola! Soc l'assistent d'estoc. Et vaig avisant de cada venda i de quan cal reposar. Som-hi: ven un producte a la botigueta i ho veuràs 👆</div>
+    </div>
+    <div class="mt-3 flex items-center gap-2 text-xs text-slate-400 border-t border-slate-300 pt-2">Ets tu · <span class="font-semibold text-emerald-700">WhatsApp Business</span></div>
+  </div>
+</section>
+
 <!-- ROI -->
 <section class="max-w-4xl mx-auto px-4 pb-6">
   <div class="grid md:grid-cols-3 gap-4">
@@ -175,7 +192,7 @@ const PREU=[12,9,7,15,8,10];
 const NOMS=["esbandada vermella","tornavis taronja","esponja verda","galleda blava","guant lila","espátula daurada"];
 
 function vendre(){
-  if(estoc<=0){setAviso();return;}
+  if(estoc<=0){setAviso();waSend("🛒 Sense estoc! Has venut tot. Vols que generi la comanda de reposició al proveïdor?");return;}
   // comprador s'apropa i torna
   animarComprador();
   // cauen monedes a la caixa
@@ -189,14 +206,27 @@ function vendre(){
   document.getElementById('estoc').textContent=estoc;
   document.getElementById('diners').textContent=diners+' €';
   document.getElementById('venda').textContent=ult+' · +'+p+' €';
+  waSend("✅ Venda registrada: "+ult+". Queden "+estoc+" "+ (estoc===1?"unitat":"unitats") +". ("+p+" €)");
   if(estoc<=2){setAviso();} else {amagaAviso();}
 }
 function setAviso(){
   const a=document.getElementById('aviso');
   a.classList.remove('hidden');
   a.querySelector('.text-red-700').textContent='Mínim assolit! Queden '+estoc+' unitats.';
+  waSend("⚠️ MÍNIM ASSOLIT: queden "+estoc+" "+ (estoc===1?"unitat":"unitats") +". Reposa avui o et quedaràs sense vendre!");
 }
 function amagaAviso(){document.getElementById('aviso').classList.add('hidden');}
+
+function waSend(text){
+  const st=document.getElementById('wastack');
+  const d=document.createElement('div');
+  d.className='self-start bg-white rounded-2xl rounded-tl-sm px-3 py-2 text-sm text-slate-700 shadow-sm max-w-[85%]';
+  d.textContent=text;
+  st.appendChild(d);
+  st.scrollTop=st.scrollHeight;
+  // so de notificació? no, silenci. però anima breu
+  d.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:250});
+}
 
 function llençarMonedes(){
   const cont=document.getElementById('monedes');
